@@ -2,11 +2,11 @@
 import sys
 import csv
 from pathlib import Path
-from openpyxl import Workbook
+import xlsxwriter
 
 def main():
     if len(sys.argv) != 3:
-        print("Usage: python parse_to_excel.py <input_file> <output_excel_file>")
+        print("Usage: python parse_to_excel.py <input_tsv_file> <output_excel_file>")
         sys.exit(1)
 
     input_file = sys.argv[1]
@@ -16,49 +16,42 @@ def main():
         print(f"Error: Input file {input_file} does not exist")
         sys.exit(1)
 
-    # Read CSV
-    rows = []
+    # 创建 Excel 工作簿和工作表
+    workbook = xlsxwriter.Workbook(output_file)
+    worksheet = workbook.add_worksheet("Data")
+
     with open(input_file, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
+        reader = csv.reader(f, delimiter='\t')
         try:
             header = next(reader)
         except StopIteration:
-            print("Error: CSV file is empty")
+            print("Error: TSV file is empty")
+            workbook.close()
             sys.exit(1)
 
-        for row in reader:
-            if row:  # skip empty lines
-                rows.append(row)
+        for col_idx, value in enumerate(header):
+            worksheet.write(0, col_idx, value)
 
-    if not rows:
-        print("No valid data found, exiting")
-        sys.exit(0)
+        expected_cols = len(header)
+        row_count = 0
 
-    # Ensure consistent column count
-    expected_cols = len(header)
-    for i, row in enumerate(rows):
-        if len(row) != expected_cols:
-            print(f"Warning: Row {i+2} has {len(row)} columns, but header has {expected_cols} columns. Padding/truncating.")
-            if len(row) < expected_cols:
-                row.extend([''] * (expected_cols - len(row)))
-            else:
-                rows[i] = row[:expected_cols]
+        for row_idx, row in enumerate(reader, start=1):
+            if not row:
+                continue
 
-    # Create Excel workbook
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Data"
+            if len(row) != expected_cols:
+                print(f"Warning: Row {row_idx+1} has {len(row)} columns, but header has {expected_cols} columns. Padding/truncating.")
+                if len(row) < expected_cols:
+                    row.extend([''] * (expected_cols - len(row)))
+                else:
+                    row = row[:expected_cols]
 
-    # Write header
-    ws.append(header)
+            for col_idx, value in enumerate(row):
+                worksheet.write(row_idx, col_idx, value)
+            row_count += 1
 
-    # Write data rows
-    for row in rows:
-        ws.append(row)
-
-    # Save
-    wb.save(output_file)
-    print(f"Successfully wrote {len(rows)} rows to {output_file}")
+    workbook.close()
+    print(f"Successfully wrote {row_count} rows to {output_file}")
 
 if __name__ == '__main__':
     main()
