@@ -8,7 +8,7 @@
 - 岑岭县，草湖市
 - 港澳台地区
 
-如有需要可以去看看 <https://github.com/mumuy/data_location>，该仓库包含了更多数据。
+如有需要可以去看看 <https://github.com/montmorill/data_location>，该仓库包含了更多数据。
 
 ---
 
