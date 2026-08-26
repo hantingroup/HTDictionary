@@ -30,7 +30,7 @@
 对于团镇合一的，团名记录在 `farm`，如：
 
 ```csv
-parent,specific,generic,farm
+code,specific,generic,farm
 659009100,老兵,镇,四十七团
 659009101,昆泉,镇,皮山农场
 659009102,昆牧,镇,一牧场
@@ -42,6 +42,6 @@ parent,specific,generic,farm
 > 红星二场并不以 `农场` 结尾，其记录如此：
 >
 > ```csv
-> parent,specific,generic,farm
+> code,specific,generic,farm
 > 659011400,红星二,农场,红星二场
 > ```
